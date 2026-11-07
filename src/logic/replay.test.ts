@@ -91,7 +91,7 @@ describe('titles and reigns', () => {
     expect(s.reign).toEqual({ paul: 0, bex: 1 });
     expect(s.titles).toHaveLength(1);
     expect(s.titles[0]).toMatchObject({ player: 'bex', reign: 1, kind: 'first' });
-    expect(celebrationMessage(s.titles[0])).toBe('Bex is Champion of Champions!');
+    expect(celebrationMessage(s.titles[0])).toBe('Beccs is Champion of Champions!');
   });
 
   it('defence: reign 1 to 2', () => {
@@ -107,7 +107,7 @@ describe('titles and reigns', () => {
     expect(s.champion).toBe('bex');
     expect(s.reign).toEqual({ paul: 0, bex: 1 });
     expect(s.titles[2]).toMatchObject({ kind: 'change', from: 'paul', reign: 1 });
-    expect(celebrationMessage(s.titles[2])).toBe('Bex takes the crown from Paul!');
+    expect(celebrationMessage(s.titles[2])).toBe('Beccs takes the crown from Paul!');
   });
 
   it('a returning champion restarts at reign 1', () => {
@@ -131,10 +131,10 @@ describe('titles and reigns', () => {
     expect(reignLabel(5)).toBe('5x Champion of Champions');
     expect(reignLabel(6)).toBe('6x Champion of Champions');
     expect(celebrationMessage({ matchId: 'x', at: 0, player: 'bex', reign: 3, kind: 'defence', runMatchIds: [] })).toBe(
-      'Bex is TRIPLE Champion of Champions!',
+      'Beccs is TRIPLE Champion of Champions!',
     );
     expect(celebrationMessage({ matchId: 'x', at: 0, player: 'bex', reign: 7, kind: 'defence', runMatchIds: [] })).toBe(
-      'Bex is 7x Champion of Champions!',
+      'Beccs is 7x Champion of Champions!',
     );
   });
 });
@@ -154,7 +154,7 @@ describe('deleting and abandoning', () => {
 
     const withoutFirstTitle = log.filter((x) => x !== log[2]);
     const s2 = replay(withoutFirstTitle);
-    // Paul's run is now B,S then Bex's run completes: Bex's title is now her first.
+    // Paul's run is now B,S then Beccs's run completes: that title is now the first.
     expect(s2.champion).toBe('bex');
     expect(s2.titles).toHaveLength(1);
     expect(s2.titles[0]).toMatchObject({ kind: 'first', player: 'bex' });

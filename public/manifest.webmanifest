@@ -1,7 +1,7 @@
 {
   "name": "Champion of Champions",
   "short_name": "Scorecard",
-  "description": "Paul vs Bex card game scorecard",
+  "description": "Paul vs Beccs card game scorecard",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

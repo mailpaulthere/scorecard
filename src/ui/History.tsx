@@ -51,7 +51,7 @@ export function History({
                       </li>
                     ))}
                   </ol>
-                  <p className="muted small">First to {m.target}. Paul {s.paul}, Bex {s.bex}.</p>
+                  <p className="muted small">First to {m.target}. {PLAYER_NAME.paul} {s.paul}, {PLAYER_NAME.bex} {s.bex}.</p>
                   <button className="btn small danger" onClick={() => setToDelete(m)}>
                     Delete match
                   </button>

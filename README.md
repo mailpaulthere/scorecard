@@ -1,6 +1,6 @@
 # Champion of Champions scorecard
 
-A small phone-first web app for Paul and Bex to track Bastard, Switch and Rummy matches, runs and the Champion of Champions title. It runs on Firebase Hosting + Firestore on the free Spark plan.
+A small phone-first web app for Paul and Beccs to track Bastard, Switch and Rummy matches, runs and the Champion of Champions title. It runs on Firebase Hosting + Firestore on the free Spark plan.
 
 ## How it works
 

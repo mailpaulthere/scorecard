@@ -4,7 +4,7 @@ export type Game = 'bastard' | 'switch' | 'rummy';
 export const PLAYERS: Player[] = ['paul', 'bex'];
 export const GAMES: Game[] = ['bastard', 'switch', 'rummy'];
 
-export const PLAYER_NAME: Record<Player, string> = { paul: 'Paul', bex: 'Bex' };
+export const PLAYER_NAME: Record<Player, string> = { paul: 'Paul', bex: 'Beccs' };
 export const GAME_NAME: Record<Game, string> = { bastard: 'Bastard', switch: 'Switch', rummy: 'Rummy' };
 
 export const other = (p: Player): Player => (p === 'paul' ? 'bex' : 'paul');
