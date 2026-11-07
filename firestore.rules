@@ -1,0 +1,44 @@
+rules_version = '2';
+
+// Only the one shared Scorecard account can read or write anything.
+// Replace REPLACE_WITH_SCORECARD_UID with that account's User UID
+// (Firebase console > Authentication > Users). Checking the exact UID, not just
+// "signed in", means nobody can get in by creating their own account.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isUs() {
+      return request.auth != null && request.auth.uid == 'REPLACE_WITH_SCORECARD_UID';
+    }
+    function validPlayer(p) {
+      return p == 'paul' || p == 'bex';
+    }
+    function validGame(g) {
+      return g == 'bastard' || g == 'switch' || g == 'rummy';
+    }
+
+    match /matches/{id} {
+      allow read, delete: if isUs();
+      allow create, update: if isUs()
+        && validGame(request.resource.data.game)
+        && validPlayer(request.resource.data.winner)
+        && request.resource.data.hands is list
+        && request.resource.data.target is int;
+    }
+
+    match /live/{id} {
+      allow read, delete: if isUs() && id == 'current';
+      allow create, update: if isUs() && id == 'current'
+        && validGame(request.resource.data.game)
+        && request.resource.data.hands is list;
+    }
+
+    match /settings/{id} {
+      allow read: if isUs() && id == 'app';
+      allow write: if isUs() && id == 'app'
+        && request.resource.data.target is int
+        && request.resource.data.target >= 1
+        && request.resource.data.target <= 15;
+    }
+    // Everything else is denied by default.
+  }
+}
