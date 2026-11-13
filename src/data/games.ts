@@ -15,7 +15,7 @@ import type { Player } from '../logic/types';
  */
 
 /** Ids of the games stored here. Add a new game's id to this list and to firestore.rules. */
-export const SIMPLE_GAMES = ['yahtzee', 'whist'] as const;
+export const SIMPLE_GAMES = ['yahtzee', 'whist', 'holdem', 'blackjack'] as const;
 export type SimpleGame = (typeof SIMPLE_GAMES)[number];
 
 export interface LiveDoc<S = unknown, T = unknown> {
@@ -54,12 +54,9 @@ export interface GamesSnapshot {
   ready: boolean;
 }
 
-export const emptyGamesSnapshot = (): GamesSnapshot => ({
-  live: { yahtzee: null, whist: null },
-  results: [],
-  settings: { yahtzee: null, whist: null },
-  ready: false,
-});
+const nulls = () => Object.fromEntries(SIMPLE_GAMES.map((g) => [g, null])) as Record<SimpleGame, null>;
+
+export const emptyGamesSnapshot = (): GamesSnapshot => ({ live: nulls(), results: [], settings: nulls(), ready: false });
 
 export interface GameStore {
   subscribe(cb: (s: GamesSnapshot) => void, onError: (e: Error) => void): () => void;

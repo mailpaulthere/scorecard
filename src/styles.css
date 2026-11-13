@@ -380,3 +380,7 @@ table.yboard { width: 100%; border-collapse: collapse; font-variant-numeric: tab
 .btn.trick .small { font-size: 0.72rem; opacity: 0.8; font-weight: 500; }
 .btn.trick.paul { background: var(--paul); }
 .btn.trick.bex { background: var(--bex); }
+
+/* ---- Hold'em / Blackjack ---- */
+.btn.danger-outline { background: none; border-color: var(--danger); color: #ff8a8d; }
+.hand-dots.left { justify-content: flex-start; }

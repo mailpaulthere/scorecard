@@ -17,7 +17,7 @@ service cloud.firestore {
     }
     // Games stored as live/{game} + results/{id}. Add new games here (and to SIMPLE_GAMES in src/data/games.ts).
     function simpleGame(g) {
-      return g == 'yahtzee' || g == 'whist';
+      return g == 'yahtzee' || g == 'whist' || g == 'holdem' || g == 'blackjack';
     }
 
     match /matches/{id} {
