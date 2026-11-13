@@ -5,6 +5,8 @@ A small phone-first web app for Paul and Beccs. One address, one tab per game al
 - **Champion of Champions**: Bastard, Switch and Rummy matches, runs and the title (unchanged from v1).
 - **Yahtzee**: the old stand-alone Yahtzee scorecard, now with both phones in sync, even the dice as they're entered.
 - **German Whist**: rules from pagat.com. A hand is won by the majority of the 13 stage-2 tricks (or all 26, as a setting); a match is first to N hands.
+- **Texas Hold'em**: heads-up with real chips. Log each hand (or a split pot); the match ends when you tap who is bust.
+- **Blackjack**: the dealer swaps every hand; first to N hands won (5 by default), a push counts for nobody.
 - **Master**: every game's results together. 1 point per win in any game, draws score nothing.
 
 Every game has its own leaderboard and history, and syncs live between both phones. It runs on Firebase Hosting + Firestore on the free Spark plan.
@@ -34,11 +36,15 @@ firestore.rules
 
 Champion of Champions keeps exactly the documents it always had: `matches`, `live/current`, `settings/app`. The other games use:
 
-- `live/{game}` (`live/yahtzee`, `live/whist`): the game in progress, `{ rev, state, turn }`. Every change is a transaction that checks `rev`, so if both phones tap at once one of them is told "the score changed on the other phone" instead of overwriting it. Yahtzee's dice (`turn`) are written without a transaction so taps feel instant; a `turn` from an older `rev` is ignored.
+- `live/{game}` (`live/yahtzee`, `live/whist`, `live/holdem`, `live/blackjack`): the game in progress, `{ rev, state, turn }`. Every change is a transaction that checks `rev`, so if both phones tap at once one of them is told "the score changed on the other phone" instead of overwriting it. Yahtzee's dice (`turn`) are written without a transaction so taps feel instant; a `turn` from an older `rev` is ignored.
 - `results/{id}`: finished games of every kind, `{ game, winner, scores, startedAt, endedAt, detail }`.
 - `settings/{game}`.
 
 ### Adding another game
+
+A game scored simply as "who won each hand" needs no new screens: copy `src/games/blackjack.ts` (it's all settings and rules text for the shared engine in `src/games/hands/`), then do steps 2 and 3 below.
+
+Otherwise:
 
 1. Write its rules and tests in `src/games/<id>/`, and screens that read `data.games.live.<id>` and write through `data.gameStore.mutate('<id>', ...)`. German Whist is the simplest example to copy.
 2. Export a `GameTab` from `src/games/<id>/index.tsx` and add it to `TABS` in `src/games/registry.ts`.

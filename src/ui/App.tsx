@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { replay, type TitleEvent } from '../logic/replay';
 import type { AuthApi, Snapshot, Store } from '../data/store';
 import { emptyGamesSnapshot, type GameStore, type GamesSnapshot } from '../data/games';
@@ -62,6 +62,11 @@ function Main({ store, games: gameStore, auth }: { store: Store; games: GameStor
   }, []);
   useEffect(() => store.subscribe(setSnap, (e) => setError(e.message)), [store]);
   useEffect(() => gameStore.subscribe(setGames, (e) => setError(e.message)), [gameStore]);
+
+  // With more tabs than fit, keep the chosen one in view.
+  useEffect(() => {
+    document.querySelector('.gamebar .active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [tab.id, snap.ready]);
 
   const cocState = useMemo(() => replay(snap.matches), [snap.matches]);
 
@@ -134,7 +139,8 @@ function Main({ store, games: gameStore, auth }: { store: Store; games: GameStor
         ) : legacy ? (
           <YahtzeeImport entries={legacy} data={data} onDone={closeImport} />
         ) : (
-          tab.render(view, data)
+          // Keyed so screens never carry state over from another game's tab.
+          <Fragment key={`${tab.id}:${view}`}>{tab.render(view, data)}</Fragment>
         )}
       </main>
 

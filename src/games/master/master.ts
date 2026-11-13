@@ -5,8 +5,13 @@ import type { ResultDoc, SimpleGame } from '../../data/games';
 /** Everything that can appear on the Master leaderboard: each Champion of Champions game, then the other games. */
 export type MasterKind = CompletedMatch['game'] | SimpleGame;
 
-export const SIMPLE_GAME_NAME: Record<SimpleGame, string> = { yahtzee: 'Yahtzee', whist: 'German Whist' };
-export const MASTER_KINDS: MasterKind[] = [...GAMES, 'yahtzee', 'whist'];
+export const SIMPLE_GAME_NAME: Record<SimpleGame, string> = {
+  yahtzee: 'Yahtzee',
+  whist: 'German Whist',
+  holdem: "Texas Hold'em",
+  blackjack: 'Blackjack',
+};
+export const MASTER_KINDS: MasterKind[] = [...GAMES, 'yahtzee', 'whist', 'holdem', 'blackjack'];
 export const KIND_NAME: Record<MasterKind, string> = { ...GAME_NAME, ...SIMPLE_GAME_NAME };
 
 /** Paul's rule (Nov 2026): every win in any game is worth 1 point. Draws score nothing. */
