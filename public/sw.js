@@ -1,6 +1,6 @@
 // Minimal service worker: makes the app installable and lets the shell open with no signal.
 // Data sync is handled by Firestore's own offline cache, not here.
-const CACHE = 'scorecard-v1';
+const CACHE = 'scorecard-v2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/manifest.webmanifest', '/icons/icon-192.png'])));

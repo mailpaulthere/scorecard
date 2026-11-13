@@ -1,6 +1,13 @@
-# Champion of Champions scorecard
+# Scorecard
 
-A small phone-first web app for Paul and Beccs to track Bastard, Switch and Rummy matches, runs and the Champion of Champions title. It runs on Firebase Hosting + Firestore on the free Spark plan.
+A small phone-first web app for Paul and Beccs. One address, one tab per game along the top:
+
+- **Champion of Champions**: Bastard, Switch and Rummy matches, runs and the title (unchanged from v1).
+- **Yahtzee**: the old stand-alone Yahtzee scorecard, now with both phones in sync, even the dice as they're entered.
+- **German Whist**: rules from pagat.com. A hand is won by the majority of the 13 stage-2 tricks (or all 26, as a setting); a match is first to N hands.
+- **Master**: every game's results together. 1 point per win in any game, draws score nothing.
+
+Every game has its own leaderboard and history, and syncs live between both phones. It runs on Firebase Hosting + Firestore on the free Spark plan.
 
 ## How it works
 
@@ -12,11 +19,34 @@ A small phone-first web app for Paul and Beccs to track Bastard, Switch and Rumm
 - **Access** is one shared Firebase Auth account. The passcode is that account's password: it never appears in the code and is checked by Firebase. `firestore.rules` only lets that one account's UID read or write.
 
 ```
-src/logic/     pure rules: replay, game picker, labels, stats, Brisbane periods (+ tests)
-src/data/      Firestore store, plus an in-browser store for demo mode
-src/ui/        React screens
+src/logic/        Champion of Champions rules: replay, game picker, stats, Brisbane periods (+ tests)
+src/games/coc/    Champion of Champions screens
+src/games/yahtzee/  Yahtzee rules (ported from the old app, + tests), screens, old-history import
+src/games/whist/  German Whist rules (+ tests) and screens
+src/games/master/ Master leaderboard
+src/games/registry.ts  the list of tabs
+src/data/         Firestore stores, plus an in-browser store for demo mode
+src/ui/           app shell, login, shared pieces
 firestore.rules
 ```
+
+### Where the data lives
+
+Champion of Champions keeps exactly the documents it always had: `matches`, `live/current`, `settings/app`. The other games use:
+
+- `live/{game}` (`live/yahtzee`, `live/whist`): the game in progress, `{ rev, state, turn }`. Every change is a transaction that checks `rev`, so if both phones tap at once one of them is told "the score changed on the other phone" instead of overwriting it. Yahtzee's dice (`turn`) are written without a transaction so taps feel instant; a `turn` from an older `rev` is ignored.
+- `results/{id}`: finished games of every kind, `{ game, winner, scores, startedAt, endedAt, detail }`.
+- `settings/{game}`.
+
+### Adding another game
+
+1. Write its rules and tests in `src/games/<id>/`, and screens that read `data.games.live.<id>` and write through `data.gameStore.mutate('<id>', ...)`. German Whist is the simplest example to copy.
+2. Export a `GameTab` from `src/games/<id>/index.tsx` and add it to `TABS` in `src/games/registry.ts`.
+3. Add the id to `SIMPLE_GAMES` in `src/data/games.ts`, to `simpleGame()` in `firestore.rules`, and a name to `SIMPLE_GAME_NAME` / `MASTER_KINDS` in `src/games/master/master.ts` so it counts on the Master leaderboard.
+
+### Old Yahtzee games
+
+The old Yahtzee app saved finished games in each phone's browser, which this site can't read. Its menu has **Send games to Scorecard**, which opens this app with the games in the address; you pick who is who and tap Import. Only Paul-v-Beccs games come across (solo games and games with other people are skipped), with totals only. Re-sending is harmless: imported games have fixed ids.
 
 ## Run it locally
 

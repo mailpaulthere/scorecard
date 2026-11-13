@@ -1,7 +1,7 @@
 {
-  "name": "Champion of Champions",
+  "name": "Scorecard",
   "short_name": "Scorecard",
-  "description": "Paul vs Beccs card game scorecard",
+  "description": "Paul vs Beccs scorecard: Champion of Champions, Yahtzee, German Whist",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

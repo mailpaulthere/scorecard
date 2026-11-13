@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { dealerForNewMatch, score } from '../logic/match';
-import { gameOptions, type ReplayState } from '../logic/replay';
-import { formatDate } from '../logic/time';
-import { GAME_NAME, PLAYERS, PLAYER_NAME, other, type Game, type LiveMatch, type Player } from '../logic/types';
-import type { Snapshot, Store } from '../data/store';
-import type { Actions } from './App';
-import { Confirm } from './Confirm';
+import { dealerForNewMatch, score } from '../../logic/match';
+import { gameOptions, type ReplayState } from '../../logic/replay';
+import { formatDate } from '../../logic/time';
+import { GAME_NAME, PLAYERS, PLAYER_NAME, other, type Game, type LiveMatch, type Player } from '../../logic/types';
+import type { Snapshot, Store } from '../../data/store';
+import type { Actions } from '../../ui/App';
+import { Confirm } from '../../ui/Confirm';
 
 interface Props {
   store: Store;
