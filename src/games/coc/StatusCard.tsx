@@ -1,5 +1,5 @@
-import { reignLabel, type ReplayState } from '../logic/replay';
-import { GAMES, GAME_NAME, PLAYER_NAME } from '../logic/types';
+import { reignLabel, type ReplayState } from '../../logic/replay';
+import { GAMES, GAME_NAME, PLAYER_NAME } from '../../logic/types';
 
 export function StatusCard({ state }: { state: ReplayState }) {
   const champ = state.champion;

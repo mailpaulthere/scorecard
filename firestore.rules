@@ -15,6 +15,10 @@ service cloud.firestore {
     function validGame(g) {
       return g == 'bastard' || g == 'switch' || g == 'rummy';
     }
+    // Games stored as live/{game} + results/{id}. Add new games here (and to SIMPLE_GAMES in src/data/games.ts).
+    function simpleGame(g) {
+      return g == 'yahtzee' || g == 'whist';
+    }
 
     match /matches/{id} {
       allow read, delete: if isUs();
@@ -25,19 +29,38 @@ service cloud.firestore {
         && request.resource.data.target is int;
     }
 
+    // live/current is the Champion of Champions match; live/yahtzee etc. are the other games in progress.
     match /live/{id} {
-      allow read, delete: if isUs() && id == 'current';
-      allow create, update: if isUs() && id == 'current'
-        && validGame(request.resource.data.game)
-        && request.resource.data.hands is list;
+      allow read, delete: if isUs() && (id == 'current' || simpleGame(id));
+      allow create, update: if isUs() && (
+        (id == 'current'
+          && validGame(request.resource.data.game)
+          && request.resource.data.hands is list)
+        || (simpleGame(id)
+          && request.resource.data.rev is int
+          && request.resource.data.state is map)
+      );
+    }
+
+    // Finished games other than Champion of Champions matches.
+    match /results/{id} {
+      allow read, delete: if isUs();
+      allow create, update: if isUs()
+        && simpleGame(request.resource.data.game)
+        && (request.resource.data.winner == null || validPlayer(request.resource.data.winner))
+        && request.resource.data.scores is map
+        && request.resource.data.endedAt is number;
     }
 
     match /settings/{id} {
-      allow read: if isUs() && id == 'app';
-      allow write: if isUs() && id == 'app'
-        && request.resource.data.target is int
-        && request.resource.data.target >= 1
-        && request.resource.data.target <= 15;
+      allow read: if isUs() && (id == 'app' || simpleGame(id));
+      allow write: if isUs() && (
+        (id == 'app'
+          && request.resource.data.target is int
+          && request.resource.data.target >= 1
+          && request.resource.data.target <= 15)
+        || simpleGame(id)
+      );
     }
     // Everything else is denied by default.
   }

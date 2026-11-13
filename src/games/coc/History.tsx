@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
-import { score } from '../logic/match';
-import { sortMatches, type ReplayState } from '../logic/replay';
-import { formatDateTime } from '../logic/time';
-import { GAME_NAME, PLAYER_NAME, type CompletedMatch } from '../logic/types';
-import type { Store } from '../data/store';
-import type { Actions } from './App';
-import { Confirm } from './Confirm';
+import { score } from '../../logic/match';
+import { sortMatches, type ReplayState } from '../../logic/replay';
+import { formatDateTime } from '../../logic/time';
+import { GAME_NAME, PLAYER_NAME, type CompletedMatch } from '../../logic/types';
+import type { Store } from '../../data/store';
+import type { Actions } from '../../ui/App';
+import { Confirm } from '../../ui/Confirm';
 
 export function History({
   store,

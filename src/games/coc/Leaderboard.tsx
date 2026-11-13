@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { reignLabel, type ReplayState } from '../logic/replay';
-import { leaderboard } from '../logic/stats';
-import { formatDate, inPeriod, type Period } from '../logic/time';
-import { GAMES, GAME_NAME, PLAYERS, PLAYER_NAME, type CompletedMatch } from '../logic/types';
+import { reignLabel, type ReplayState } from '../../logic/replay';
+import { leaderboard } from '../../logic/stats';
+import { formatDate, inPeriod, type Period } from '../../logic/time';
+import { GAMES, GAME_NAME, PLAYERS, PLAYER_NAME, type CompletedMatch } from '../../logic/types';
 
 const PERIODS: { id: Period; label: string }[] = [
   { id: 'week', label: 'This week' },

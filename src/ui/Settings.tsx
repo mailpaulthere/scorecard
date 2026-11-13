@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { AuthApi, Snapshot, Store } from '../data/store';
 import type { Actions } from './App';
+import { DeviceCard } from './DeviceCard';
 
 export function Settings({ store, auth, snap, actions }: { store: Store; auth: AuthApi; snap: Snapshot; actions: Actions }) {
   const [target, setTarget] = useState(snap.target);
@@ -28,15 +29,7 @@ export function Settings({ store, auth, snap, actions }: { store: Store; auth: A
         </button>
       </section>
 
-      <section className="card">
-        <h2>This device</h2>
-        <p className="muted">Signing out means entering the passcode again on this phone.</p>
-        <button className="btn" onClick={() => actions.run(() => auth.signOut())}>
-          Sign out
-        </button>
-      </section>
-
-      <p className="muted small center">Times and periods use Brisbane time. Weeks start Monday.</p>
+      <DeviceCard auth={auth} actions={actions} />
     </div>
   );
 }

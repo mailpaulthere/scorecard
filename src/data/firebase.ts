@@ -11,11 +11,14 @@ import {
   persistentMultipleTabManager,
   runTransaction,
   setDoc,
+  updateDoc,
+  writeBatch,
   type Firestore,
 } from 'firebase/firestore';
 import { addHand, newMatch, reopen, switchDealer, undoHand } from '../logic/match';
 import type { CompletedMatch, LiveMatch } from '../logic/types';
 import { DEFAULT_TARGET, StaleError, type AuthApi, type Snapshot, type Store } from './store';
+import { SIMPLE_GAMES, emptyGamesSnapshot, type GameStore, type LiveDoc, type ResultDoc } from './games';
 
 const env = import.meta.env;
 
@@ -158,5 +161,105 @@ export const firebaseStore: Store = {
 
   async setTarget(n) {
     await setDoc(settingsRef, { target: n }, { merge: true });
+  },
+};
+
+const resultsCol = collection(db, 'results');
+const gameLiveRef = (game: string) => doc(db, 'live', game);
+const gameSettingsRef = (game: string) => doc(db, 'settings', game);
+
+export const firebaseGames: GameStore = {
+  subscribe(cb, onError) {
+    const s = emptyGamesSnapshot();
+    const pending = new Set<string>(['results', ...SIMPLE_GAMES.flatMap((g) => [`live:${g}`, `settings:${g}`])]);
+    const emit = (key: string) => {
+      pending.delete(key);
+      cb({ ...s, live: { ...s.live }, settings: { ...s.settings }, ready: pending.size === 0 });
+    };
+    const unsubs = [
+      onSnapshot(
+        resultsCol,
+        (q) => {
+          s.results = q.docs.map((d) => ({ ...(d.data() as Omit<ResultDoc, 'id'>), id: d.id }));
+          emit('results');
+        },
+        onError,
+      ),
+      ...SIMPLE_GAMES.flatMap((g) => [
+        onSnapshot(
+          gameLiveRef(g),
+          (d) => {
+            s.live[g] = d.exists() ? (d.data() as LiveDoc) : null;
+            emit(`live:${g}`);
+          },
+          onError,
+        ),
+        onSnapshot(
+          gameSettingsRef(g),
+          (d) => {
+            s.settings[g] = d.exists() ? d.data() : null;
+            emit(`settings:${g}`);
+          },
+          onError,
+        ),
+      ]),
+    ];
+    return () => unsubs.forEach((u) => u());
+  },
+
+  async mutate(game, expect, fn) {
+    const ref = gameLiveRef(game);
+    return runTransaction(db, async (tx) => {
+      const d = await tx.get(ref);
+      const cur = d.exists() ? (d.data() as LiveDoc) : null;
+      if (expect === 'none' ? cur !== null : cur === null || cur.rev !== expect) {
+        throw expect === 'none' ? new Error('A game is already in progress.') : new StaleError();
+      }
+      const m = fn((cur?.state ?? null) as never);
+      if (m.state === null) tx.delete(ref);
+      else tx.set(ref, { rev: (cur?.rev ?? 0) + 1, state: m.state, turn: null });
+      if (m.result) {
+        const r = doc(resultsCol);
+        tx.set(r, m.result);
+        return r.id;
+      }
+      return null;
+    });
+  },
+
+  async setTurn(game, turn) {
+    try {
+      await updateDoc(gameLiveRef(game), { turn });
+    } catch {
+      // The game ended or moved on meanwhile; a stale turn is ignored anyway.
+    }
+  },
+
+  async reopen(game, resultId, state) {
+    const ref = gameLiveRef(game);
+    const r = doc(resultsCol, resultId);
+    await runTransaction(db, async (tx) => {
+      const [live, res] = await Promise.all([tx.get(ref), tx.get(r)]);
+      if (live.exists()) throw new Error('Another game has already started.');
+      if (!res.exists()) throw new Error('That game no longer exists.');
+      tx.set(ref, { rev: Date.now(), state, turn: null });
+      tx.delete(r);
+    });
+  },
+
+  async deleteResult(id) {
+    await deleteDoc(doc(resultsCol, id));
+  },
+
+  async setSettings(game, data) {
+    await setDoc(gameSettingsRef(game), data, { merge: true });
+  },
+
+  async importResults(results) {
+    for (let i = 0; i < results.length; i += 400) {
+      const batch = writeBatch(db);
+      for (const { id, ...data } of results.slice(i, i + 400)) batch.set(doc(resultsCol, id), data);
+      await batch.commit();
+    }
   },
 };
